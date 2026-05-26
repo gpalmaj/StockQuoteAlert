@@ -1,0 +1,28 @@
+# Build results
+bin/
+obj/
+out/
+
+# .NET / Visual Studio user files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider / VS Code
+.idea/
+.vs/
+.vscode/
+
+# Logs
+*.log
+
+# Local secrets / config overrides
+appsettings.Development.json
+appsettings.Local.json
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
