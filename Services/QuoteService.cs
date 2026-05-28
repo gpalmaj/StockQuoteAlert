@@ -1,6 +1,8 @@
 using System.Text.Json;
 
 public class QuoteService{
+
+    // 
     public static async Task<decimal> GetQuote(HttpClient client, string stock)
     {
         var response = await client.GetAsync($"quote/{stock}");
