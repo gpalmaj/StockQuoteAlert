@@ -45,3 +45,13 @@ Ponto de entrada, responsavel por implementar as funcionalidades definidas nos d
 
 
 
+---
+# Referências
+https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/standard-library
+https://dotnetfoundation.org/news-events/detail/mailkit-working-with-emails
+https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/deserialization
+https://brapi.dev/docs
+
+---
+# Uso de LLMs
+O modelo Opus 4.6 foi consultado pelo aplicativo Claude.ai, apenas para elucidacao de sintasse no processo de desenvolvimento.
