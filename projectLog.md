@@ -12,7 +12,7 @@ Ele deve ser chamado via linha de comando com 3 parâmetros.
 3. Preco para compra
 
 ## Arquivo de configuracao:
-Contem email alvo e config do SMTP
+Contem email alvo e config do SMTP. Obrigatoriamente segue o formato especificado pelas classes definidas ./Models/AlertParticipants.cs
 
 ---
 
@@ -45,17 +45,23 @@ A classe email sevice
 
 ### Main [./Program.cs]
 Ponto de entrada, responsavel por implementar as funcionalidades definidas nos demais modulos. 
+É necessario definir a frequencia de polling da API (toda a capacidade que a API permite?).
 
+__Logica crassa__:
+- Cada x segundos, pega preco da api
+- compara se está dentro do intervalo
+- se nao está, mandar o e-mail correspondente
+- se está, faz nada.
 
 
 ---
 # Referências
-https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/standard-library
-https://dotnetfoundation.org/news-events/detail/mailkit-working-with-emails
-https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/deserialization
-https://brapi.dev/docs
-https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/nullable-warnings#possible-null-assigned-to-a-nonnullable-reference
+- https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/standard-library
+- https://dotnetfoundation.org/news-events/detail/mailkit-working-with-emails
+- https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/deserialization
+- https://brapi.dev/docs
+- https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/nullable-warnings#possible-null-assigned-to-a-nonnullable-reference
 
 ---
 # Uso de LLMs
-O modelo Opus 4.6 foi consultado pelo aplicativo Claude.ai, apenas para elucidacao de sintasse no processo de desenvolvimento.
+O modelo Opus 4.6 foi consultado pelo aplicativo Claude.ai, apenas para elucidacao da sintaxe C#.
