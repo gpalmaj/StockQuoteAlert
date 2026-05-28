@@ -11,9 +11,19 @@ if (args.Length < 2)
     return 1;
 } 
 
-var client = ClientSetup.Create(token);
-var json = await QuoteService.GetQuote(client, $"{args[0]}");
+// Initialization of http client
+var client = ClientSetup.Create(token!) ;
+var price = await QuoteService.GetQuote(client, $"{args[0]}");
 
-Console.WriteLine(json);
+//Initialization of SMTP service
+var emailConfig = EmailService.Init("appsettings.json");
+if (emailConfig is null)
+{
+    Console.WriteLine("Failed to inicialize email exchange");
+    return 1;
+}
+var (sender, receiver) = emailConfig.Value;
+
+EmailService.SendEmail(sender, receiver, false, 14.5m, "ABEV3");
 
 return 0;

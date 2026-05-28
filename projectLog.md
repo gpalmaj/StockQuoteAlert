@@ -35,10 +35,13 @@ O projeto precisa de modulos auxiliares para poder implementar as funcionalidade
 ### Consulta [./Services/QuoteService.cs] (./Services/ClientSetup como auxiliar)
 Responsável pela aquisicao das informacoes úteis para o cumprimento dos requisitos.
 
-__Funcionalidade principal__: Consulta a API pelo preco de uma acao atraves da brap, com uma consulta http
+__Funcionalidade principal__: Consulta a API pelo preco de uma acao atraves da brapi, com uma consulta http. O campo que interessa ao programa é o 
 
 ### Notificacao [./Services/EmailService]
 Responsavel por gerenciar os processos e implementacao do SMTP para o envio de emails
+A classe email sevice 
+- inicializa o serviço, com um recebedor e um "enviador" SMTP.
+- estrutura e envia a mensagem usando a biblioteca Mailkit.
 
 ### Main [./Program.cs]
 Ponto de entrada, responsavel por implementar as funcionalidades definidas nos demais modulos. 
@@ -51,6 +54,7 @@ https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-spec
 https://dotnetfoundation.org/news-events/detail/mailkit-working-with-emails
 https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/deserialization
 https://brapi.dev/docs
+https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/nullable-warnings#possible-null-assigned-to-a-nonnullable-reference
 
 ---
 # Uso de LLMs

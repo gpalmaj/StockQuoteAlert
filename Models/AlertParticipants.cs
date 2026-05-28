@@ -1,14 +1,12 @@
-public class Reciever
+public class Receiver
 {
-    public string Email {get; set;}
+    required public string Email {get; set;}
 }
 
 public class SmtpSender
 {
-    public string Host {get; set;}
-    public int Port {get; set;}
-    public string Username {get; set;}
-    public string Password { get; set;}
-    public bool EnableSSL {get; set;}
-    
+    required public string Host {get; set;}
+    required public int Port {get; set;}
+    required public string Username {get; set;}
+    required public string Password { get; set;}    
 }
