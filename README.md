@@ -115,14 +115,3 @@ The interpretation of the requirement was deliberate: the challenge statement sa
 
 The polling cadence is set to one query per minute, well within brapi's free-tier limits.
 
-## Fault tolerance
-
-The loop differentiates between fatal and transient failures so the process keeps running through temporary outages but exits quickly when the situation is unrecoverable:
-
-- `404 Not Found` and `401 Unauthorized` from brapi are treated as fatal (wrong ticker or bad token); the process exits.
-- Other `HttpRequestException`s are treated as transient and the loop continues.
-- `TaskCanceledException` (15 second client timeout) is logged and the loop continues.
-- `AuthenticationException` from the SMTP client is fatal.
-
-Configuration and secret-loading errors are caught before the loop starts, so a misconfigured deployment fails fast instead of degrading silently.
-

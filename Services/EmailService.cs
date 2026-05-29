@@ -32,7 +32,7 @@ public class EmailService
         message.Subject = warning + suggestion + stock;
         message.Body = new TextPart("plain")
         {
-            Text = $"O valor da ação é de {currentPrice}"
+            Text = $"O valor da ação é de R${currentPrice}"
         };
 
         using var client = new SmtpClient();

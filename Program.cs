@@ -2,6 +2,8 @@
 using System.Globalization;
 using System.Security.Authentication;
 using Microsoft.Extensions.Configuration;
+using MailKit.Net.Smtp;
+
 
 // configuring secrets
 var config = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
@@ -15,7 +17,7 @@ if (string.IsNullOrWhiteSpace(token))
 // validating command line arguments
 if (args.Length < 3)
 {
-    Console.Error.WriteLine("Usage: StockQuoteAlert <STOCK> <SELLPRICE> <BUYPRICE>");
+    Console.Error.WriteLine("Usage: dotnet run -- <STOCK> <SELLPRICE> <BUYPRICE>");
     return 1;
 } 
 string stock = args[0];
@@ -69,9 +71,17 @@ catch (Exception ex)
     Console.Error.WriteLine($"Failed to initialize email exchange: {ex.Message}");
     return 1;
 }
-//TODO Graceful shutdown
 
-while (true)
+using var cts = new CancellationTokenSource();
+
+Console.CancelKeyPress += (_, e) =>
+{
+    e.Cancel = true;
+    Console.WriteLine("Shutting down");
+    cts.Cancel();
+};
+
+while (!cts.IsCancellationRequested)
 {
     try
     {
@@ -87,6 +97,7 @@ while (true)
         EmailService.SendEmail(sender, receiver, false, price, stock);
     }
     
+        await Task.Delay(60000, cts.Token);
 
     }   
     catch(HttpRequestException ex) when (ex.StatusCode is System.Net.HttpStatusCode.NotFound or System.Net.HttpStatusCode.Unauthorized)
@@ -106,12 +117,21 @@ while (true)
         return 1;
 
     }
+    catch (MailKit.Net.Smtp.SmtpCommandException ex)
+    {
+        Console.Error.WriteLine($"SMTP failed: {ex.Message}");
+    }
+    catch(OperationCanceledException) when (cts.IsCancellationRequested)
+    {
+        break;
+    }
     catch (TaskCanceledException)
     {
         Console.Error.WriteLine("Request timed out");
     }
 
+
    
-    await Task.Delay(60000);
 }
 
+return 0;

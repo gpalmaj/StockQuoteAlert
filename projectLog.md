@@ -73,6 +73,14 @@ __EmailService__: Possiveis erros na leitura do arquivo e processamento de crede
 
 ---
 
+### Entrega
+Para a entrega, substituí o arquivo appsettings com um exemplo, para nao vazar nenhuma chave minha (as do historico estao invalidadas.)
+Não commitarei binários, mas ele pode ser gerado pelo seguinte comando:
+
+```
+dotnet publish -c Release -r <rid> --self-contained -p:PublishSingleFile=true
+```
+
 ### Testes
 Foram realizados durante o pregão, para gatilhos superiores e inferiores.
 A API funciona normalmente nos demais horarios do dia.
