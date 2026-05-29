@@ -82,6 +82,8 @@ Console.CancelKeyPress += (_, e) =>
     cts.Cancel();
 };
 
+// TODO: useful logging
+
 while (!cts.IsCancellationRequested)
 {
     try
