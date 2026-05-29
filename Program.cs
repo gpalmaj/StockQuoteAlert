@@ -76,6 +76,7 @@ while (true)
     try
     {
         var price = await QuoteService.GetQuote(client, $"{stock}");
+        Console.WriteLine(price);
 
     if (price > upperLimit)
     {

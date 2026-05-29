@@ -48,7 +48,7 @@ Ponto de entrada, responsavel por implementar as funcionalidades definidas nos d
 É necessario definir a frequencia de polling da API (toda a capacidade que a API permite?). 
 - Frequencia de *uma query por minuto* parace ok
 
-__Logica crassa__:
+__Logica__:
 - Cada x segundos, pega preco da api
 - compara se está dentro do intervalo
 - se nao está, mandar o e-mail correspondente
@@ -71,12 +71,11 @@ Antes do envio, vou "arredondar" as operacoes do programa, para evitar crashes e
 __Main__: Para a main, o parsing de argumentos e possiveis falhas na API sao o principal ponto a tratar. O try-catch do loop precisa tratar de casos especificos.
 __EmailService__: Possiveis erros na leitura do arquivo e processamento de credenciais
 
-
-
 ---
 
 ### Testes
-Foram realizados durante o pregão do dia 29/05/26, para gatilhos superiores e inferiores.
+Foram realizados durante o pregão, para gatilhos superiores e inferiores.
+A API funciona normalmente nos demais horarios do dia.
 
 ---
 # Referências
@@ -89,3 +88,4 @@ Foram realizados durante o pregão do dia 29/05/26, para gatilhos superiores e i
 ---
 # Uso de LLMs
 O modelo Opus 4.6 foi consultado pelo aplicativo Claude.ai, apenas para elucidacao da sintaxe C#.
+Claude Code com Opus 4.6 foi usado para gerar o README.
