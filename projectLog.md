@@ -35,7 +35,7 @@ O projeto precisa de modulos auxiliares para poder implementar as funcionalidade
 ### Consulta [./Services/QuoteService.cs] (./Services/ClientSetup como auxiliar)
 Responsável pela aquisicao das informacoes úteis para o cumprimento dos requisitos.
 
-__Funcionalidade principal__: Consulta a API pelo preco de uma acao atraves da brapi, com uma consulta http. O campo que interessa ao programa é o 
+__Funcionalidade principal__: Consulta a API pelo preco de uma acao atraves da brapi, com uma consulta http. 
 
 ### Notificacao [./Services/EmailService]
 Responsavel por gerenciar os processos e implementacao do SMTP para o envio de emails
@@ -61,11 +61,12 @@ Como o enunciado do desafio cita:\
 
 Toda vez que o preço for menor que linha-vermelha, um e-mail deve ser disparado aconselhando a compra."
 
-Interpretei para a versao inicial, cumprindo os requisitos minimos, que deveria disparar e-mails sempre que a query estiver fora dos limites. 
+Interpretei (para a versao inicial cumprindo os requisitos minimos) que deveria disparar e-mails sempre que a query devolver um numero fora dos limites. 
+
 ---
 
-# Features Extra:
-
+### Testes
+Foram realizados durante o pregão do dia 29/05/26, para gatilhos superiores e inferiores.
 
 ---
 # Referências

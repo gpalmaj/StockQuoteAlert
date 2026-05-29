@@ -18,7 +18,7 @@ public class EmailService
         return (sender, receiver);
         
     }
-    public static void SendEmail( SmtpSender sender, Receiver receiver, bool high, decimal priceLimit, decimal currentPrice, string stock) // * true -> atingiu valor de venda || false -> atingiu valor de compra
+    public static void SendEmail( SmtpSender sender, Receiver receiver, bool high, decimal currentPrice, string stock) // * true -> atingiu valor de venda || false -> atingiu valor de compra
 
     {
         var message = new MimeMessage();
