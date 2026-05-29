@@ -1,6 +1,6 @@
 using System.Net.Http.Headers;
 
-public static class ClientSetup
+public class ClientSetup
 {
     public static HttpClient Create(string token)
     {

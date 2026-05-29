@@ -58,6 +58,7 @@ if (string.IsNullOrWhiteSpace(stock))
 
 // Initialization of http client
 var client = ClientSetup.Create(token) ;
+var previousZone = Zone.Within;
 
 //Initialization of SMTP service
 SmtpSender sender;
@@ -85,19 +86,24 @@ while (!cts.IsCancellationRequested)
 {
     try
     {
-        var price = await QuoteService.GetQuote(client, $"{stock}");
-        Console.WriteLine(price);
+        
+    var price = await QuoteService.GetQuote(client, $"{stock}");
+    var currentZone = (price>upperLimit) ? Zone.Above : (price<lowerLimit) ? Zone.Below : Zone.Within;
+    if(currentZone != previousZone)
+        {
+        if (currentZone == Zone.Above)
+        {
+            EmailService.SendEmail(sender, receiver, true, price, stock);
+        }
+        else if (currentZone == Zone.Below)
+        {
+            EmailService.SendEmail(sender, receiver, false, price, stock);
+        }
+        previousZone = currentZone;
 
-    if (price > upperLimit)
-    {
-        EmailService.SendEmail(sender, receiver, true, price, stock);
-    }
-    else if (price < lowerLimit)
-    {
-        EmailService.SendEmail(sender, receiver, false, price, stock);
-    }
+        }
     
-        await Task.Delay(60000, cts.Token);
+    await Task.Delay(60000, cts.Token);
 
     }   
     catch(HttpRequestException ex) when (ex.StatusCode is System.Net.HttpStatusCode.NotFound or System.Net.HttpStatusCode.Unauthorized)
@@ -130,8 +136,13 @@ while (!cts.IsCancellationRequested)
         Console.Error.WriteLine("Request timed out");
     }
 
-
-   
 }
 
 return 0;
+
+public enum Zone
+{
+    Within,
+    Above,
+    Below
+}

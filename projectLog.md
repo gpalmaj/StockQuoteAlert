@@ -50,18 +50,17 @@ Ponto de entrada, responsavel por implementar as funcionalidades definidas nos d
 
 __Logica__:
 - Cada x segundos, pega preco da api
-- compara se está dentro do intervalo
-- se nao está, mandar o e-mail correspondente
-- se está, faz nada.
+- compara se estava dentro do intervalo
+- se estava e nao está, mandar o e-mail correspondente
+- se continua, faz nada.
 
-De outra forma, seria simples ter uma variavel indicando se na ultima query a acao estava dentro dos limites estabelecidos, para disparar o email apenas quando a acao __passar__ dos limites.\ 
 
-Como o enunciado do desafio cita:\
+O enunciado do desafio cita:\
 "Toda vez que o preço for maior que linha-azul, um e-mail deve ser disparado aconselhando a venda.
 
 Toda vez que o preço for menor que linha-vermelha, um e-mail deve ser disparado aconselhando a compra."
 
-Interpretei (para a versao inicial cumprindo os requisitos minimos) que deveria disparar e-mails sempre que a query devolver um numero fora dos limites. 
+Apesar do fraseamento em inclinar a enviar emails toda vez que a query encontrar um valor fora dos limites, um email por minuto em caso da acao se manter na zona em questao nao é razoavel, entao foi implementado o padrao edge-triggered.
 
 ---
 
