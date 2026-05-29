@@ -1,5 +1,6 @@
 
 using System.Globalization;
+using System.Security.Authentication;
 using Microsoft.Extensions.Configuration;
 
 // configuring secrets
@@ -27,7 +28,7 @@ if (!decimal.TryParse(args[1], NumberStyles.Number, CultureInfo.InvariantCulture
 }
 if (!decimal.TryParse(args[2], NumberStyles.Number, CultureInfo.InvariantCulture, out var lowerLimit))
 {
-    Console.Error.WriteLine($"SELLPRICE must be a valid number. Got: {args[2]} instead");
+    Console.Error.WriteLine($"BUYPRICE must be a valid number. Got: {args[2]} instead");
     return 1;
 }
 
@@ -54,7 +55,7 @@ if (string.IsNullOrWhiteSpace(stock))
 
 
 // Initialization of http client
-var client = ClientSetup.Create(token!) ;
+var client = ClientSetup.Create(token) ;
 
 //Initialization of SMTP service
 SmtpSender sender;
@@ -75,10 +76,6 @@ while (true)
     try
     {
         var price = await QuoteService.GetQuote(client, $"{stock}");
-        Console.WriteLine(price);
-        Console.WriteLine(upperLimit);
-        Console.WriteLine(lowerLimit);
-
 
     if (price > upperLimit)
     {
@@ -90,12 +87,30 @@ while (true)
     }
     
 
-    }
-    catch(Exception ex)
+    }   
+    catch(HttpRequestException ex) when (ex.StatusCode is System.Net.HttpStatusCode.NotFound or System.Net.HttpStatusCode.Unauthorized)
     {
-        Console.Error.Write($"Failed to fetch quote: {ex.Message}");
+        //Ends here because it will always go wrong
+        Console.Error.WriteLine($"API error {ex.StatusCode}: {ex.Message}");
+        return 1;
     }
+    catch(HttpRequestException ex)
+    {
+        //Can be momentary so returns to loop
+        Console.Error.WriteLine($"Transient API error {ex.StatusCode}: {ex.Message}");
+    }
+    catch(AuthenticationException ex)
+    {
+        Console.Error.WriteLine($"SMTP Auth failed: {ex.Message}");
+        return 1;
+
+    }
+    catch (TaskCanceledException)
+    {
+        Console.Error.WriteLine("Request timed out");
+    }
+
    
-    await Task.Delay(15000);
+    await Task.Delay(60000);
 }
 

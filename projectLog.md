@@ -65,6 +65,16 @@ Interpretei (para a versao inicial cumprindo os requisitos minimos) que deveria 
 
 ---
 
+## Refinando
+Antes do envio, vou "arredondar" as operacoes do programa, para evitar crashes e falhas improdutivas.
+
+__Main__: Para a main, o parsing de argumentos e possiveis falhas na API sao o principal ponto a tratar. O try-catch do loop precisa tratar de casos especificos.
+__EmailService__: Possiveis erros na leitura do arquivo e processamento de credenciais
+
+
+
+---
+
 ### Testes
 Foram realizados durante o pregão do dia 29/05/26, para gatilhos superiores e inferiores.
 

@@ -24,12 +24,12 @@ public class EmailService
     {
         var message = new MimeMessage();
         message.From.Add( new MailboxAddress("Stock Quote Alert", sender.Username ));
-        message.To.Add( new MailboxAddress("User da Silva", receiver.Email));
+        message.To.Add( new MailboxAddress(" ", receiver.Email));
 
         var warning = $"Seu alerta de preço foi disparado! ";
-        var sujestion = high?" VENDA ":" COMPRE ";
+        var suggestion = high?" VENDA ":" COMPRE ";
 
-        message.Subject = warning + sujestion + stock;
+        message.Subject = warning + suggestion + stock;
         message.Body = new TextPart("plain")
         {
             Text = $"O valor da ação é de {currentPrice}"
