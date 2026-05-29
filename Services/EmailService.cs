@@ -6,15 +6,16 @@ using System.Text.Json.Nodes;
 
 public class EmailService
 {
-    public static (SmtpSender, Receiver)? Init(string fileName)
+    public static (SmtpSender, Receiver) Init(string fileName)
     {
         string jsonString = File.ReadAllText(fileName);
-        var node = JsonNode.Parse(jsonString);
-        if (node is null) return null;
+        var node = JsonNode.Parse(jsonString)
+            ?? throw new InvalidOperationException($"'{fileName} is empty or invalid JSON");
 
-        SmtpSender sender = node["SmtpSettings"]?.Deserialize<SmtpSender>()!;
-        Receiver receiver = node["Receiver"]?.Deserialize<Receiver>()!;
-        if ((sender is null) || (receiver is null)) return null;
+        var sender = node["SmtpSettings"]?.Deserialize<SmtpSender>()
+            ?? throw new InvalidOperationException($"'SmtpSettings' section not found in {fileName}");
+        var receiver = node["Receiver"]?.Deserialize<Receiver>()
+            ?? throw new InvalidOperationException($"'Receiver' section not found in {fileName}");;
         return (sender, receiver);
         
     }

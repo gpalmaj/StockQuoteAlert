@@ -57,14 +57,17 @@ if (string.IsNullOrWhiteSpace(stock))
 var client = ClientSetup.Create(token!) ;
 
 //Initialization of SMTP service
-var emailConfig = EmailService.Init("appsettings.json");
-if (emailConfig is null)
+SmtpSender sender;
+Receiver receiver;
+try
 {
-    Console.WriteLine("Failed to initialize email exchange");
+     (sender, receiver) = EmailService.Init("appsettings.json");
+}
+catch (Exception ex)
+{
+    Console.Error.WriteLine($"Failed to initialize email exchange: {ex.Message}");
     return 1;
 }
-var (sender, receiver) = emailConfig.Value;
-
 //TODO Graceful shutdown
 
 while (true)

@@ -5,7 +5,7 @@ public class QuoteService{
     {
         var response = await client.GetAsync($"quote/{stock}");
         response.EnsureSuccessStatusCode();
-        var doc = JsonDocument.Parse( await response.Content.ReadAsStringAsync());
+        using var doc = JsonDocument.Parse( await response.Content.ReadAsStringAsync());
 
         return  doc.RootElement.GetProperty("results")[0].GetProperty("regularMarketPrice").GetDecimal();
     }
