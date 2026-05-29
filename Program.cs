@@ -1,3 +1,4 @@
+
 using Microsoft.Extensions.Configuration;
 
 // configuring secrets
@@ -10,6 +11,10 @@ if (args.Length < 2)
     Console.Error.WriteLine("Usage: StockQuoteAlert <TICKER> <SELLPRICE> <BUYPRICE>");
     return 1;
 } 
+string stock = args[0];
+decimal lowerLimit = System.Convert.ToDecimal(args[1]);
+decimal upperLimit = System.Convert.ToDecimal(args[2]);
+
 
 // Initialization of http client
 var client = ClientSetup.Create(token!) ;
@@ -24,6 +29,19 @@ if (emailConfig is null)
 }
 var (sender, receiver) = emailConfig.Value;
 
-EmailService.SendEmail(sender, receiver, false, 14.5m, "ABEV3");
+EmailService.SendEmail(sender, receiver, false, 14.5m,0,  "ABEV3");
 
-return 0;
+while (true)
+{
+    price = await QuoteService.GetQuote(client, $"{args[0]}");
+    if (price > upperLimit)
+    {
+        EmailService.SendEmail(sender, receiver, true, upperLimit, price, stock);
+    }
+    else if (price < lowerLimit)
+    {
+        EmailService.SendEmail(sender, receiver, false, lowerLimit, price, stock);
+    }
+    Thread.Sleep(60000);
+}
+

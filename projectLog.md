@@ -16,9 +16,9 @@ Contem email alvo e config do SMTP. Obrigatoriamente segue o formato especificad
 
 ---
 
-# Escolha de API para precos
+### Escolha de API para precos
 Pesquisas me deram diferentes possibilidades para APIs de rastreamento de preco de acoes. A mais acessivel completa para acoes B3 foi a brapi.
-# Escolha de Biblioteca para e-mail
+### Escolha de Biblioteca para e-mail
 O mailkit é a escolha óbvia para o projeto simples.
 
 ---
@@ -45,13 +45,26 @@ A classe email sevice
 
 ### Main [./Program.cs]
 Ponto de entrada, responsavel por implementar as funcionalidades definidas nos demais modulos. 
-É necessario definir a frequencia de polling da API (toda a capacidade que a API permite?).
+É necessario definir a frequencia de polling da API (toda a capacidade que a API permite?). 
+- Frequencia de *uma query por minuto* parace ok
 
 __Logica crassa__:
 - Cada x segundos, pega preco da api
 - compara se está dentro do intervalo
 - se nao está, mandar o e-mail correspondente
 - se está, faz nada.
+
+De outra forma, seria simples ter uma variavel indicando se na ultima query a acao estava dentro dos limites estabelecidos, para disparar o email apenas quando a acao __passar__ dos limites.\ 
+
+Como o enunciado do desafio cita:\
+"Toda vez que o preço for maior que linha-azul, um e-mail deve ser disparado aconselhando a venda.
+
+Toda vez que o preço for menor que linha-vermelha, um e-mail deve ser disparado aconselhando a compra."
+
+Interpretei para a versao inicial, cumprindo os requisitos minimos, que deveria disparar e-mails sempre que a query estiver fora dos limites. 
+---
+
+# Features Extra:
 
 
 ---
