@@ -14,22 +14,25 @@ The project was built as part of an internship selection challenge. It focuses o
 
 ```
 StockQuoteAlert/
-├── Program.cs                  Entry point. Argument parsing, polling loop, error orchestration.
+├── Program.cs                  Entry point. Loads configuration, wires dependencies, installs the Ctrl+C handler, hands control to StockMonitor.
 ├── Models/
-│   └── AlertParticipants.cs    POCOs that bind the appsettings.json sections.
+│   └── AlertParticipants.cs    POCOs that bind the appsettings.json sections (Receiver, SmtpSender).
 ├── Services/
-│   ├── ClientSetup.cs          Builds the pre-configured HttpClient for brapi.
-│   ├── QuoteService.cs         Performs the quote HTTP call and extracts the price.
-│   └── EmailService.cs         Loads e-mail config and sends messages via MailKit.
+│   ├── AppArgs.cs              Record + parser for the three command-line arguments. Owns input validation.
+│   ├── ClientSetup.cs          Builds the pre-configured HttpClient for brapi (base address, bearer token, timeout).
+│   ├── QuoteService.cs         Performs the quote HTTP call and extracts regularMarketPrice from the response.
+│   ├── EmailService.cs         Sends alert messages via MailKit. Wraps SMTP failures in EmailAuthException / EmailTransientException.
+│   └── StockMonitor.cs         Polling loop, zone classification, error orchestration, and timestamped output.
 ├── appsettings.json            Receiver + SMTP configuration (see below).
 └── StockQuoteAlert.csproj
 ```
 
-The three logical modules of the design are:
+The four logical modules of the design are:
 
+- **Bootstrap** ([Program.cs](Program.cs)) loads configuration and the brapi user secret, parses the CLI arguments via `AppArgs.ParseArgs`, binds the SMTP/Receiver sections, wires the `CancellationToken` to `Ctrl+C`, and hands control to `StockMonitor`.
 - **Query** ([Services/QuoteService.cs](Services/QuoteService.cs), supported by [Services/ClientSetup.cs](Services/ClientSetup.cs)) gets the current `regularMarketPrice` from brapi.
-- **Notification** ([Services/EmailService.cs](Services/EmailService.cs)) initialises the SMTP sender and recipient from the configuration file and dispatches the alert message.
-- **Main** ([Program.cs](Program.cs)) wires everything together, validates input, and drives the polling loop.
+- **Notification** ([Services/EmailService.cs](Services/EmailService.cs)) dispatches the alert message and translates MailKit failures into the typed `EmailAuthException` (fatal) / `EmailTransientException` (recoverable) so the loop can react appropriately.
+- **Monitor** ([Services/StockMonitor.cs](Services/StockMonitor.cs)) runs the polling loop: queries the price, classifies it into a `Zone` (`Above` / `Below` / `Within`), fires the alert on edge transitions, prints a timestamped line per tick, and decides whether each exception is fatal or transient.
 
 ## Configuration
 
@@ -143,7 +146,7 @@ The polling loop distinguishes between fatal and transient failures:
 | brapi `404 Not Found` (unknown ticker) | Exit `1` — the symbol will never resolve. |
 | brapi `401 Unauthorized` (bad API key) | Exit `1` — the key needs to be reconfigured. |
 | SMTP authentication failure | Exit `1` — credentials in `appsettings.json` are wrong. |
-| Other brapi HTTP errors, request timeouts, malformed JSON, I/O errors | Log and continue — likely transient. |
-| Transient SMTP send failure (`SmtpCommandException`, `SmtpProtocolException`, `IOException`) | Log and continue — next zone transition will retry. |
-| Quote payload missing `results` / `regularMarketPrice` | Print `Quote unavailable` and wait one minute. |
+| Other brapi HTTP errors, request timeouts, malformed JSON, I/O errors | Log and continue.  |
+| Transient SMTP send failure (`SmtpCommandException`, `SmtpProtocolException`, `IOException`) | Log and continue. |
+| Quote payload missing `results` / `regularMarketPrice` | Print `Quote unavailable` and wait. |
 

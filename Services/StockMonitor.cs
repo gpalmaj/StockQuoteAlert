@@ -13,6 +13,7 @@ public class StockMonitor(HttpClient client, SmtpSender sender, Receiver receive
 
     public async Task<int> RunAsync(CancellationToken ct)
     {
+        var i = 1;
         var previousZone = Zone.Within;
         string timeStamp = Timestamp();
 
@@ -32,7 +33,7 @@ public class StockMonitor(HttpClient client, SmtpSender sender, Receiver receive
                     await Task.Delay(60000, ct);
                     continue;
                 }
-
+                price+= i;
                 Console.Write($"{price} ");
                 var currentZone = (price > args.SellPrice) ? Zone.Above
                                 : (price < args.BuyPrice)  ? Zone.Below
@@ -101,6 +102,7 @@ public class StockMonitor(HttpClient client, SmtpSender sender, Receiver receive
             {
                 Console.Error.WriteLine($"\nUnexpected error ({ex.GetType().FullName}): {ex.Message}");
             }
+            i--;
         }
 
         Console.WriteLine($"Monitoring stopped -- {timeStamp}");
