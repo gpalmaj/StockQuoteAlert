@@ -2,6 +2,12 @@ using System.Text.Json;
 
 public class StockMonitor(HttpClient client, SmtpSender sender, Receiver receiver, AppArgs args)
 {
+    public enum Zone
+{
+    Within,
+    Above,
+    Below
+}
     private readonly TimeZoneInfo _brZone = TimeZoneInfo.FindSystemTimeZoneById(
         OperatingSystem.IsWindows() ? "E. South America Standard Time" : "America/Sao_Paulo");
 

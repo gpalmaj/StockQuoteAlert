@@ -54,10 +54,3 @@ Console.CancelKeyPress += (_, e) =>
 
 var monitor = new StockMonitor(client, sender, receiver, appArgs);
 return await monitor.RunAsync(cts.Token);
-
-public enum Zone
-{
-    Within,
-    Above,
-    Below
-}

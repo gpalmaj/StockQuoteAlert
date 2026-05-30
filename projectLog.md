@@ -90,7 +90,7 @@ dotnet publish -c Release -r <rid> --self-contained -p:PublishSingleFile=true
 Ate o commit 046a1f6, a Program.cs se acumulou muitas responsabilidades, e merece um refactor, se destrinchando em metodos menores.
 Funcionalidades alvo:
 - Parsing de argumentos (agora em AppArgs.cs)
-- Loading de configuraçao
+- Loading de configuraçao (Vai ficar no Program.cs, mais simples)
 - Logica de monitoramento de preço (Monitor)
 
 Cada um desses se torna uma classe propria, para a modularizacao. 
