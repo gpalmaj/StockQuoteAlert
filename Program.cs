@@ -10,6 +10,7 @@ var config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.Development.json", optional: true)
     .AddUserSecrets<Program>()
     .Build();
+
 var token = config["brapiKey"];
 if (string.IsNullOrWhiteSpace(token))
 {
