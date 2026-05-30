@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-public class QuoteService{
+public static class QuoteService{
     public static async Task<decimal?> GetQuote(HttpClient client, string stock, CancellationToken ct = default)
     {
 

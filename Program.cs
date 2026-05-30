@@ -34,7 +34,7 @@ Receiver receiver;
 try
 {
      sender   = config.GetSection("SmtpSettings").Get<SmtpSender>()
-               ?? throw new InvalidOperationException("SmtpSettings missing from appsetings.json");
+               ?? throw new InvalidOperationException("SmtpSettings missing from appsettings.json");
      receiver = config.GetSection("Receiver").Get<Receiver>()
                ?? throw new InvalidOperationException("Receiver missing from appsettings.json");
 }

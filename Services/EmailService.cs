@@ -14,7 +14,7 @@ public class EmailTransientException : Exception
     public EmailTransientException(string message, Exception inner) : base(message, inner) { }
 }
 
-public class EmailService
+public static class EmailService
 {
     public enum Alert{ Sell, Buy}
     
@@ -44,7 +44,7 @@ public class EmailService
         }
         catch (MailKit.Security.AuthenticationException ex)
         {
-            throw new EmailAuthException("SMTP Authentication Failed, check appsetings.json", ex);
+            throw new EmailAuthException("SMTP Authentication Failed, check appsettings.json", ex);
         }
         catch (Exception ex) when ( ex is SmtpCommandException || ex is SmtpProtocolException || ex is IOException)
         {

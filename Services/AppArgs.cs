@@ -41,7 +41,7 @@ public record AppArgs(string Stock, decimal SellPrice, decimal BuyPrice)
             return false;
         }
 
-        result = new AppArgs(stock, buyPrice, sellPrice);
+        result = new AppArgs(stock, sellPrice, buyPrice);
         error = null;
 
         return true;
