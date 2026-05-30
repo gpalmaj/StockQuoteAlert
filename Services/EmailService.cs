@@ -17,26 +17,12 @@ public class EmailTransientException : Exception
 public class EmailService
 {
     public enum Alert{ Sell, Buy}
-
-    public static (SmtpSender, Receiver) Init(string fileName)
-    {
-        string jsonString = File.ReadAllText(fileName);
-        var node = JsonNode.Parse(jsonString)
-            ?? throw new InvalidOperationException($"'{fileName} is empty or invalid JSON");
-
-        var sender = node["SmtpSettings"]?.Deserialize<SmtpSender>()
-            ?? throw new InvalidOperationException($"'SmtpSettings' section not found in {fileName}");
-        var receiver = node["Receiver"]?.Deserialize<Receiver>()
-            ?? throw new InvalidOperationException($"'Receiver' section not found in {fileName}");;
-        return (sender, receiver);
-        
-    }
     
     public static async  Task SendAlertEmail(SmtpSender sender, Receiver receiver, Alert kind, decimal currentPrice, string stock, CancellationToken ct = default)
     {
         var message = new MimeMessage();
         message.From.Add( new MailboxAddress("Stock Quote Alert", sender.Username ));
-        message.To.Add( new MailboxAddress(" ", receiver.Email));
+        message.To.Add( new MailboxAddress("", receiver.Email));
         var suggestion = kind == Alert.Sell ? "VENDA " : "COMPRE ";
         message.Subject = $"{suggestion} {stock}";
         message.Body = new TextPart("plain")

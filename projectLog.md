@@ -67,13 +67,20 @@ Apesar do fraseamento em inclinar a enviar emails toda vez que a query encontrar
 ## Refinando
 Antes do envio, vou "arredondar" as operacoes do programa, para evitar crashes e falhas improdutivas.
 
-__Main__: Para a main, o parsing de argumentos e possiveis falhas na API sao o principal ponto a tratar. O try-catch do loop precisa tratar de casos especificos.
-__EmailService__: Possiveis erros na leitura do arquivo e processamento de credenciais
+#### Fault tolerance
+__Main__: Para a main, o parsing de argumentos e possiveis falhas na API sao o principal ponto a tratar. O try-catch do loop precisa tratar de casos especificos. (10 catch statements parece um pouco excessivo, mas cada um tem sua responsabilidade distinta e o output util)
+*obs*: O catch-all no final assume que é um erro transiente e continua rodando, para que nao se interrompa abruptamente um monitoramento.
+__EmailService__: Possiveis erros na leitura do arquivo e processamento de credenciais pelo arquivo json. 
+__QuoteService__: Possiveis erros de comunicacao com a API
+
+#### Graceful shutdown
+As operacoes sao assincronas, entao passei um token de cancelamento da task, que se propaga para os processos ataves da sinalizacao pela main. Dessa forma, os processos sao interrompidos de forma eficiente. 
+
 
 ---
 
 ### Entrega
-Para a entrega, substituí o arquivo appsettings com um exemplo, para nao vazar nenhuma chave minha (as do historico estao invalidadas.)
+Para a entrega, substituí o arquivo appsettings com um exemplo, para nao vazar nenhuma chave minha.
 Não commitarei binários, mas ele pode ser gerado pelo seguinte comando:
 
 ```

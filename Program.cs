@@ -2,11 +2,14 @@
 using System.Globalization;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json;
-using System.Diagnostics;
 
 
 // configuring secrets
-var config = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
+var config = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json", optional: false)
+    .AddJsonFile("appsettings.Development.json", optional: true)
+    .AddUserSecrets<Program>()
+    .Build();
 var token = config["brapiKey"];
 if (string.IsNullOrWhiteSpace(token))
 {
@@ -64,7 +67,10 @@ SmtpSender sender;
 Receiver receiver;
 try
 {
-     (sender, receiver) = EmailService.Init("appsettings.json");
+     sender   = config.GetSection("SmtpSettings").Get<SmtpSender>()
+               ?? throw new InvalidOperationException("SmtpSettings missing from appsetings.json");
+     receiver = config.GetSection("Receiver").Get<Receiver>()
+               ?? throw new InvalidOperationException("Receiver missing from appsettings.json");
 }
 catch (Exception ex)
 {
@@ -107,7 +113,6 @@ while (!cts.IsCancellationRequested)
         }
     
     Console.Write($"{price} ");
-
     var currentZone = (price>upperLimit) ? Zone.Above : (price<lowerLimit) ? Zone.Below : Zone.Within;
     if(currentZone != previousZone)
         {
