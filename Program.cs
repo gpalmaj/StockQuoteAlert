@@ -53,5 +53,5 @@ Console.CancelKeyPress += (_, e) =>
     cts.Cancel();
 };
 
-var monitor = new StockMonitor(client, sender, receiver, appArgs);
+var monitor = new Monitor(client, sender, receiver, appArgs);
 return await monitor.RunAsync(cts.Token);
