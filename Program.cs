@@ -18,45 +18,11 @@ if (string.IsNullOrWhiteSpace(token))
 }
 
 // validating command line arguments
-if (args.Length < 3)
+if(!AppArgs.ParseArgs(args, out var appArgs, out var error))
 {
-    Console.Error.WriteLine("Usage: dotnet run -- <STOCK> <SELLPRICE> <BUYPRICE>");
-    return 1;
-} 
-string stock = args[0];
-
-if (!decimal.TryParse(args[1], NumberStyles.Number, CultureInfo.InvariantCulture, out var upperLimit))
-{
-    Console.Error.WriteLine($"SELLPRICE must be a valid number. Got: {args[1]} instead");
+    Console.Error.WriteLine(error);
     return 1;
 }
-if (!decimal.TryParse(args[2], NumberStyles.Number, CultureInfo.InvariantCulture, out var lowerLimit))
-{
-    Console.Error.WriteLine($"BUYPRICE must be a valid number. Got: {args[2]} instead");
-    return 1;
-}
-
-
-//Sanity checks
-if (upperLimit <= 0 || lowerLimit <= 0)
-{
-    Console.Error.WriteLine("SELLPRICE and BUYPRICE must be positive numbers.");
-    return 1;
-}
-
-if (lowerLimit >= upperLimit)
-{
-    Console.Error.WriteLine(
-        $"BUYPRICE ({lowerLimit}) must be less than SELLPRICE ({upperLimit}).");
-    return 1;
-}
-
-if (string.IsNullOrWhiteSpace(stock))
-{
-    Console.Error.WriteLine("STOCK cannot be empty.");
-    return 1;
-}
-
 
 // Initialization of http client
 var client = ClientSetup.Create(token) ;
@@ -92,7 +58,7 @@ TimeZoneInfo brZone = TimeZoneInfo.FindSystemTimeZoneById(tzId);
 DateTime brTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, brZone);
 string timeStamp = brTime.ToString("[HH:mm]");
 
-Console.WriteLine($"Monitoring {stock} -- Starting {timeStamp}");
+Console.WriteLine($"Monitoring {appArgs.Stock} -- Starting {timeStamp}");
 
 while (!cts.IsCancellationRequested)
 {
@@ -103,7 +69,7 @@ while (!cts.IsCancellationRequested)
     timeStamp = brTime.ToString("[HH:mm]");
     Console.Write($"{timeStamp} ");
 
-    var price = await QuoteService.GetQuote(client, stock, cts.Token);
+    var price = await QuoteService.GetQuote(client, appArgs.Stock, cts.Token);
     if (price is null)
         {
             Console.WriteLine("Quote unavailable");
@@ -113,18 +79,18 @@ while (!cts.IsCancellationRequested)
         }
     
     Console.Write($"{price} ");
-    var currentZone = (price>upperLimit) ? Zone.Above : (price<lowerLimit) ? Zone.Below : Zone.Within;
+    var currentZone = (price>appArgs.SellPrice) ? Zone.Above : (price<appArgs.BuyPrice) ? Zone.Below : Zone.Within;
     if(currentZone != previousZone)
         {
         if (currentZone == Zone.Above)
         {
             Console.Write(" - surpassed sell price ");
-            await EmailService.SendAlertEmail(sender, receiver,EmailService.Alert.Sell , price.Value, stock, cts.Token);
+            await EmailService.SendAlertEmail(sender, receiver,EmailService.Alert.Sell , price.Value, appArgs.Stock, cts.Token);
         }
         else if (currentZone == Zone.Below)
         {
             Console.Write(" - below buy price ");
-            await EmailService.SendAlertEmail(sender, receiver,EmailService.Alert.Buy , price.Value, stock, cts.Token);
+            await EmailService.SendAlertEmail(sender, receiver,EmailService.Alert.Buy , price.Value, appArgs.Stock, cts.Token);
         }
         previousZone = currentZone;
         }
@@ -135,7 +101,7 @@ while (!cts.IsCancellationRequested)
     catch(HttpRequestException ex) when (ex.StatusCode is System.Net.HttpStatusCode.NotFound)
     {
         //Ends here because it will always go wrong
-        Console.Error.WriteLine($"\nStock {stock} not found, check inputted symbol");
+        Console.Error.WriteLine($"\nStock {appArgs.Stock} not found, check inputted symbol");
         return 1;
     }
     catch(HttpRequestException ex) when (ex.StatusCode is System.Net.HttpStatusCode.Unauthorized)

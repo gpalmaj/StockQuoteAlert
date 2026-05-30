@@ -87,6 +87,14 @@ Não commitarei binários, mas ele pode ser gerado pelo seguinte comando:
 dotnet publish -c Release -r <rid> --self-contained -p:PublishSingleFile=true
 ```
 
+Ate o commit 046a1f6, a Program.cs se acumulou muitas responsabilidades, e merece um refactor, se destrinchando em metodos menores.
+Atualmente, esse arquivo compreende:
+- Parsing de argumentos
+- Loading de configuraçao
+- Logica de monitoramento de preço
+
+Cada um desses se torna uma classe propria, para a modularizacao. 
+
 ### Testes
 Foram realizados durante o pregão, para gatilhos superiores e inferiores.
 A API funciona normalmente nos demais horarios do dia.
