@@ -1,10 +1,8 @@
 
 using System.Globalization;
-using System.Security.Authentication;
 using Microsoft.Extensions.Configuration;
-using MailKit.Net.Smtp;
-using System.Net.Mail;
 using System.Text.Json;
+using System.Diagnostics;
 
 
 // configuring secrets
@@ -87,15 +85,18 @@ Console.CancelKeyPress += (_, e) =>
 
 string tzId = OperatingSystem.IsWindows()? "E. South America Standard Time" : "America/Sao_Paulo";
 TimeZoneInfo brZone = TimeZoneInfo.FindSystemTimeZoneById(tzId);
+DateTime brTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, brZone);
+string timeStamp = brTime.ToString("[HH:mm]");
 
+Console.WriteLine($"Monitoring {stock} -- Starting {timeStamp}");
 
 while (!cts.IsCancellationRequested)
 {
     try
     {
 
-    DateTime brTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, brZone);
-    string timeStamp = brTime.ToString("[HH:mm]");
+    brTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, brZone);
+    timeStamp = brTime.ToString("[HH:mm]");
     Console.Write($"{timeStamp} ");
 
     var price = await QuoteService.GetQuote(client, stock, cts.Token);
@@ -114,12 +115,12 @@ while (!cts.IsCancellationRequested)
         {
         if (currentZone == Zone.Above)
         {
-            Console.Write(" - surpassed sell price");
+            Console.Write(" - surpassed sell price ");
             await EmailService.SendAlertEmail(sender, receiver,EmailService.Alert.Sell , price.Value, stock, cts.Token);
         }
         else if (currentZone == Zone.Below)
         {
-            Console.Write(" - below buy price");
+            Console.Write(" - below buy price ");
             await EmailService.SendAlertEmail(sender, receiver,EmailService.Alert.Buy , price.Value, stock, cts.Token);
         }
         previousZone = currentZone;
@@ -145,15 +146,14 @@ while (!cts.IsCancellationRequested)
         //Can be momentary so returns to loop
         Console.Error.WriteLine($"Transient API error {ex.StatusCode}: {ex.Message}");
     }
-    catch(AuthenticationException ex)
+    catch(EmailAuthException ex)
     {
-        Console.Error.WriteLine($"SMTP Auth failed: {ex.Message}");
+        Console.Error.WriteLine($"Email Auth failed: {ex.Message}");
         return 1;
-
     }
-    catch (MailKit.Net.Smtp.SmtpCommandException ex)
+    catch(EmailTransientException ex)
     {
-        Console.Error.WriteLine($"SMTP failed: {ex.Message}");
+        Console.Error.WriteLine($"Email send failed: {ex.Message}");
     }
     catch(OperationCanceledException) when (cts.IsCancellationRequested)
     {
@@ -163,7 +163,7 @@ while (!cts.IsCancellationRequested)
     {
         Console.Error.WriteLine("Request timed out");
     }
-    catch (JsonException ex)
+    catch (JsonException)
     {
         Console.Error.WriteLine("Malformed API response");
     }
@@ -171,17 +171,13 @@ while (!cts.IsCancellationRequested)
     {
         Console.Error.WriteLine($"Network error: {ex.Message}");
     }
-    catch(Mailkit.Net.Smtp.SmtpProtocolException ex)
-    {
-        Console.Error.WriteLine($"SMTP protocol error: {ex.Message}");
-    }
     catch( Exception ex)
     {
-        Console.Error.WriteLine($"Unexpected error: {ex.Message}");
+    Console.Error.WriteLine($"Unexpected error ({ex.GetType().FullName}): {ex.Message}");
     }
-
 }
 
+Console.WriteLine($"Monitoring stopped -- {timeStamp}");
 return 0;
 
 public enum Zone
