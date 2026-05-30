@@ -1,4 +1,4 @@
-Esse arquivo é um registro da minha tomada de decisao e planejamento para a implementacao do projeto. 
+Esse arquivo é um registro da minha tomada de decisao e planejamento para a implementacao do projeto. Ele foi feito de maneira informal e natural durante o processo de desenvolvimento.
 
 # Requisitos:
 
@@ -88,10 +88,10 @@ dotnet publish -c Release -r <rid> --self-contained -p:PublishSingleFile=true
 ```
 
 Ate o commit 046a1f6, a Program.cs se acumulou muitas responsabilidades, e merece um refactor, se destrinchando em metodos menores.
-Atualmente, esse arquivo compreende:
-- Parsing de argumentos
+Funcionalidades alvo:
+- Parsing de argumentos (agora em AppArgs.cs)
 - Loading de configuraçao
-- Logica de monitoramento de preço
+- Logica de monitoramento de preço (Monitor)
 
 Cada um desses se torna uma classe propria, para a modularizacao. 
 
