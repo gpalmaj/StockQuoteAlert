@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Security.Authentication;
 using Microsoft.Extensions.Configuration;
 using MailKit.Net.Smtp;
+using System.Net.Mail;
+using System.Text.Json;
 
 
 // configuring secrets
@@ -82,37 +84,61 @@ Console.CancelKeyPress += (_, e) =>
     cts.Cancel();
 };
 
-// TODO: useful logging
+
+string tzId = OperatingSystem.IsWindows()? "E. South America Standard Time" : "America/Sao_Paulo";
+TimeZoneInfo brZone = TimeZoneInfo.FindSystemTimeZoneById(tzId);
+
 
 while (!cts.IsCancellationRequested)
 {
     try
     {
-        
-    var price = await QuoteService.GetQuote(client, $"{stock}");
+
+    DateTime brTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, brZone);
+    string timeStamp = brTime.ToString("[HH:mm]");
+    Console.Write($"{timeStamp} ");
+
+    var price = await QuoteService.GetQuote(client, stock, cts.Token);
+    if (price is null)
+        {
+            Console.WriteLine("Quote unavailable");
+            await Task.Delay(60000, cts.Token);
+            continue;
+
+        }
+    
+    Console.Write($"{price} ");
+
     var currentZone = (price>upperLimit) ? Zone.Above : (price<lowerLimit) ? Zone.Below : Zone.Within;
     if(currentZone != previousZone)
         {
         if (currentZone == Zone.Above)
         {
-            EmailService.SendEmail(sender, receiver, true, price, stock);
+            Console.Write(" - surpassed sell price");
+            await EmailService.SendAlertEmail(sender, receiver,EmailService.Alert.Sell , price.Value, stock, cts.Token);
         }
         else if (currentZone == Zone.Below)
         {
-            EmailService.SendEmail(sender, receiver, false, price, stock);
+            Console.Write(" - below buy price");
+            await EmailService.SendAlertEmail(sender, receiver,EmailService.Alert.Buy , price.Value, stock, cts.Token);
         }
         previousZone = currentZone;
-
         }
-    
+    Console.WriteLine(";");
     await Task.Delay(60000, cts.Token);
 
     }   
-    catch(HttpRequestException ex) when (ex.StatusCode is System.Net.HttpStatusCode.NotFound or System.Net.HttpStatusCode.Unauthorized)
+    catch(HttpRequestException ex) when (ex.StatusCode is System.Net.HttpStatusCode.NotFound)
     {
         //Ends here because it will always go wrong
-        Console.Error.WriteLine($"API error {ex.StatusCode}: {ex.Message}");
+        Console.Error.WriteLine($"Stock {stock} not found, check inputted symbol");
         return 1;
+    }
+    catch(HttpRequestException ex) when (ex.StatusCode is System.Net.HttpStatusCode.Unauthorized)
+    {
+        Console.Error.WriteLine("API key rejected. Check your brapi key configuration.");
+        return 1;
+        
     }
     catch(HttpRequestException ex)
     {
@@ -133,9 +159,25 @@ while (!cts.IsCancellationRequested)
     {
         break;
     }
-    catch (TaskCanceledException)
+    catch (TaskCanceledException) when (!cts.IsCancellationRequested)
     {
         Console.Error.WriteLine("Request timed out");
+    }
+    catch (JsonException ex)
+    {
+        Console.Error.WriteLine("Malformed API response");
+    }
+    catch (IOException ex)
+    {
+        Console.Error.WriteLine($"Network error: {ex.Message}");
+    }
+    catch(Mailkit.Net.Smtp.SmtpProtocolException ex)
+    {
+        Console.Error.WriteLine($"SMTP protocol error: {ex.Message}");
+    }
+    catch( Exception ex)
+    {
+        Console.Error.WriteLine($"Unexpected error: {ex.Message}");
     }
 
 }

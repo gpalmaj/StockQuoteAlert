@@ -1,4 +1,5 @@
 using MailKit.Net.Smtp;
+using MailKit.Security;
 using MimeKit;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -6,6 +7,7 @@ using System.Text.Json.Nodes;
 
 public class EmailService
 {
+    public enum Alert{ Sell, Buy}
     public static (SmtpSender, Receiver) Init(string fileName)
     {
         string jsonString = File.ReadAllText(fileName);
@@ -40,5 +42,25 @@ public class EmailService
         client.Authenticate(sender.Username, sender.Password);
         client.Send(message);
         client.Disconnect(true);
+    }
+
+    public static async  Task SendAlertEmail(SmtpSender sender, Receiver receiver, Alert kind, decimal currentPrice, string stock, CancellationToken ct = default)
+    {
+        var message = new MimeMessage();
+        message.From.Add( new MailboxAddress("Stock Quote Alert", sender.Username ));
+        message.To.Add( new MailboxAddress(" ", receiver.Email));
+        var suggestion = kind == Alert.Sell ? "VENDA " : "COMPRE ";
+        message.Subject = $"{suggestion} {stock}";
+        message.Body = new TextPart("plain")
+        {
+            Text = $"Seu alerta de preço para {stock} foi disparado.\nA ação atingiu o preço de R${currentPrice}"
+        };
+
+        using var client = new SmtpClient();
+        await client.ConnectAsync(sender.Host, sender.Port, SecureSocketOptions.StartTls, ct);
+        await client.AuthenticateAsync(sender.Username, sender.Password, ct);
+        await client.SendAsync(message, ct);
+        await client.DisconnectAsync(true, ct);
+
     }
 }
