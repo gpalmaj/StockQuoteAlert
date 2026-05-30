@@ -104,14 +104,46 @@ Any failed check prints a clear message and exits with status code `1`.
 
 ## How it works
 
-Once initialised, the program enters an infinite loop that polls brapi every 60 seconds:
+Once initialised, the program enters a polling loop that queries brapi every 60 seconds:
 
 1. Query the current price of `STOCK` from `https://brapi.dev/api/quote/{STOCK}`.
-2. If `price > SELLPRICE`, send a *sell* recommendation e-mail.
-3. If `price < BUYPRICE`, send a *buy* recommendation e-mail.
-4. Otherwise do nothing and wait for the next tick.
+2. Classify the price into one of three zones: `Above` (`> SELLPRICE`), `Below` (`< BUYPRICE`), or `Within`.
+3. If the zone **changed** since the previous tick:
+   - Entering `Above` → send a *sell* recommendation e-mail.
+   - Entering `Below` → send a *buy* recommendation e-mail.
+4. Otherwise wait for the next tick.
 
-The interpretation of the requirement was deliberate: the challenge statement says *"every time the price is greater than the blue line, an e-mail must be fired"*, so an alert is sent on **every** out-of-band poll, not only on the transition. Switching to edge-triggered alerts would only require tracking the previous state.
+Alerts are **edge-triggered**: one e-mail is sent when the price first crosses a threshold, and another only after the price re-enters the band and crosses again. The challenge statement is phrased as if every out-of-band poll should fire a message, but a literal level-triggered implementation would flood the inbox while the price sits outside the band, so the edge-triggered semantics were chosen instead.
 
 The polling cadence is set to one query per minute, well within brapi's free-tier limits.
+
+### Runtime output
+
+Each tick prints a line to stdout, timestamped in `America/Sao_Paulo` time:
+
+```
+[14:32] 38.71 ;
+[14:33] 38.74 ;
+[14:34] 38.92  - surpassed sell price ;
+[14:35] 38.95 ;
+```
+
+The `surpassed sell price` / `below buy price` annotation is printed on the same tick the alert e-mail is dispatched.
+
+### Graceful shutdown
+
+`Ctrl+C` is intercepted: the program cancels the pending HTTP/SMTP work, prints `Monitoring stopped -- [HH:mm]`, and exits with status `0`. The same `CancellationToken` is threaded through the brapi request, the JSON parsing, and the MailKit SMTP calls.
+
+### Fault tolerance
+
+The polling loop distinguishes between fatal and transient failures:
+
+| Condition | Behaviour |
+|---|---|
+| brapi `404 Not Found` (unknown ticker) | Exit `1` — the symbol will never resolve. |
+| brapi `401 Unauthorized` (bad API key) | Exit `1` — the key needs to be reconfigured. |
+| SMTP authentication failure | Exit `1` — credentials in `appsettings.json` are wrong. |
+| Other brapi HTTP errors, request timeouts, malformed JSON, I/O errors | Log and continue — likely transient. |
+| Transient SMTP send failure (`SmtpCommandException`, `SmtpProtocolException`, `IOException`) | Log and continue — next zone transition will retry. |
+| Quote payload missing `results` / `regularMarketPrice` | Print `Quote unavailable` and wait one minute. |
 

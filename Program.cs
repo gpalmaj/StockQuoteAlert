@@ -22,7 +22,6 @@ if (args.Length < 3)
 } 
 string stock = args[0];
 
-
 if (!decimal.TryParse(args[1], NumberStyles.Number, CultureInfo.InvariantCulture, out var upperLimit))
 {
     Console.Error.WriteLine($"SELLPRICE must be a valid number. Got: {args[1]} instead");
@@ -82,7 +81,6 @@ Console.CancelKeyPress += (_, e) =>
     cts.Cancel();
 };
 
-
 string tzId = OperatingSystem.IsWindows()? "E. South America Standard Time" : "America/Sao_Paulo";
 TimeZoneInfo brZone = TimeZoneInfo.FindSystemTimeZoneById(tzId);
 DateTime brTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, brZone);
@@ -132,28 +130,28 @@ while (!cts.IsCancellationRequested)
     catch(HttpRequestException ex) when (ex.StatusCode is System.Net.HttpStatusCode.NotFound)
     {
         //Ends here because it will always go wrong
-        Console.Error.WriteLine($"Stock {stock} not found, check inputted symbol");
+        Console.Error.WriteLine($"\nStock {stock} not found, check inputted symbol");
         return 1;
     }
     catch(HttpRequestException ex) when (ex.StatusCode is System.Net.HttpStatusCode.Unauthorized)
     {
-        Console.Error.WriteLine("API key rejected. Check your brapi key configuration.");
+        Console.Error.WriteLine("\nAPI key rejected. Check your brapi key configuration.");
         return 1;
         
     }
     catch(HttpRequestException ex)
     {
         //Can be momentary so returns to loop
-        Console.Error.WriteLine($"Transient API error {ex.StatusCode}: {ex.Message}");
+        Console.Error.WriteLine($"\nTransient API error {ex.StatusCode}: {ex.Message}");
     }
     catch(EmailAuthException ex)
     {
-        Console.Error.WriteLine($"Email Auth failed: {ex.Message}");
+        Console.Error.WriteLine($"\nEmail Auth failed: {ex.Message}");
         return 1;
     }
     catch(EmailTransientException ex)
     {
-        Console.Error.WriteLine($"Email send failed: {ex.Message}");
+        Console.Error.WriteLine($"\nEmail send failed: {ex.Message}");
     }
     catch(OperationCanceledException) when (cts.IsCancellationRequested)
     {
@@ -161,19 +159,19 @@ while (!cts.IsCancellationRequested)
     }
     catch (TaskCanceledException) when (!cts.IsCancellationRequested)
     {
-        Console.Error.WriteLine("Request timed out");
+        Console.Error.WriteLine("\nRequest timed out");
     }
     catch (JsonException)
     {
-        Console.Error.WriteLine("Malformed API response");
+        Console.Error.WriteLine("\nMalformed API response");
     }
     catch (IOException ex)
     {
-        Console.Error.WriteLine($"Network error: {ex.Message}");
+        Console.Error.WriteLine($"\nNetwork error: {ex.Message}");
     }
     catch( Exception ex)
     {
-    Console.Error.WriteLine($"Unexpected error ({ex.GetType().FullName}): {ex.Message}");
+    Console.Error.WriteLine($"\nUnexpected error ({ex.GetType().FullName}): {ex.Message}");
     }
 }
 
