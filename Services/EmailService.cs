@@ -27,7 +27,7 @@ public static class EmailService
         message.Subject = $"{suggestion} {stock}";
         message.Body = new TextPart("plain")
         {
-            Text = $"Seu alerta de preço para {stock} foi disparado.\nA ação atingiu o preço de R${currentPrice}"
+            Text = $"Seu alerta de preço para {stock} foi disparado.\nA ação atingiu o preço de R${currentPrice:F2}"
         };
 
         using var client = new SmtpClient();
