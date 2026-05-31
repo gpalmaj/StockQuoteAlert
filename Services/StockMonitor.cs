@@ -102,7 +102,6 @@ public class StockMonitor(HttpClient client, SmtpSender sender, Receiver receive
                 Console.Error.WriteLine($"\nUnexpected error ({ex.GetType().FullName}): {ex.Message}");
             }
         }
-
         Console.WriteLine($"Monitoring stopped -- {timeStamp}");
         return 0;
     }
