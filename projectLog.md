@@ -103,9 +103,12 @@ A API funciona normalmente nos demais horarios do dia.
 # Referências
 - https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/standard-library
 - https://dotnetfoundation.org/news-events/detail/mailkit-working-with-emails
-- https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/deserialization
+- https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/nullable-analysis
 - https://brapi.dev/docs
 - https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/nullable-warnings#possible-null-assigned-to-a-nonnullable-reference
+- https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/records
+- https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.configuration.configurationbuilder?view=net-11.0-pp
+- https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken?view=net-10.0
 
 ---
 # Uso de LLMs
